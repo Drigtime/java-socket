@@ -8,62 +8,68 @@ import java.net.Socket;
 
 
 public class ClientGUI {
+
     private JTextField msg;
     private JButton btn_send;
     private JPanel MainPanel;
     private JTextArea display_msg;
 
-    static PrintWriter pr = null;
-    static Socket s = null;
+    static DataOutputStream out;
+    static DataInputStream in;
+    static Socket s;
     static int port = 5000;
-    static InputStreamReader in = null;
-    static BufferedReader bf = null;
     static String msgin;
-    static DataInputStream dataInputStream;
 
     public ClientGUI() {
-
-        //DefaultCaret caret = (DefaultCaret)display_msg.getCaret();
-        //caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 
         btn_send.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                try {
-                    String msgout = "";
-                    msgout = msg.getText().trim();
-
-                    if(msgout!=null) {
-                       display_msg.append("Client : " + msgout + "\n");
-                       ClientGUI monClientGUI = new ClientGUI();
-                        //assert pr != null;
-                        monClientGUI.pr.println(msgout);
-                        monClientGUI.pr.flush();
+                String msgout = "";
+                msgout = msg.getText().trim();
+                msg.setText("");
+                msg.requestFocus();
+                if (msgout != null && msgout != "" && !msgout.isEmpty() && !msgout.isBlank()) {
+                    try {
+                        display_msg.append("Client : " + msgout + "\n");
+                        out.writeUTF(msgout);
+                        out.flush();
+                    } catch (Exception a) {
+                        System.out.println("ERROR - impossible d'envoyer le message dans le stream");
                     }
-                    int attempts = 0;
-
-                    while(dataInputStream.available() == 0 && attempts < 1000)
-                    {
-                        display_msg.append("En attente d'une réponse du serveur..\n");
-                        attempts++;
-                        Thread.sleep(1000);
+                } else {
+                    display_msg.append("ERROR : message nul - Veuillez rentrer quelque chose..");
+                    System.out.println("ERROR - message nul");
+                    return;
+                }
+                int compteur = 0;
+                while (msgin == null && msgout != null && msgout != "" && !msgout.isEmpty() && !msgout.isBlank()) {
+                    System.out.println("ERROR - msgin null in the while");
+                    display_msg.append("En attente d'une réponse du serveur..\n");
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException interruptedException) {
+                        interruptedException.printStackTrace();
                     }
-
-                    if (msgin != null) {
-                        display_msg.append("Server : " + msgin + "\n");
+                    compteur++;
+                    if(compteur > 360){
+                        display_msg.append("ERROR : le serveur ne repond pas..");
+                        System.out.println("ERROR : le serveur ne repond pas..");
+                        return;
                     }
                 }
-                catch(Exception a){
-                    a.printStackTrace();
-                }
+                display_msg.append("Server : " + msgin + "\n\n");
+                System.out.println("Server : " + msgin + "\n\n");
 
+                msgin = null;
+                return;
             }
         });
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         //IHM
-        JFrame frame = new JFrame("IHM");
+        JFrame frame = new JFrame("Client");
         frame.setContentPane(new ClientGUI().MainPanel);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
@@ -75,37 +81,28 @@ public class ClientGUI {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        while(true) {
+            try {
+                assert s != null;
+                out = new DataOutputStream(new BufferedOutputStream(s.getOutputStream()));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
-        try {
-            assert s != null;
-            pr = new PrintWriter(s.getOutputStream());
-        } catch (IOException e) {
-            e.printStackTrace();
+            try {
+                assert s != null;
+                in = new DataInputStream(new BufferedInputStream(s.getInputStream()));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            try {
+                msgin = in.readUTF();
+            } catch (IOException o) {
+                o.printStackTrace();
+            }
         }
-
-        try {
-            in = new InputStreamReader(s.getInputStream());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            dataInputStream = new DataInputStream(s.getInputStream());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        assert in != null;
-        bf = new BufferedReader(in);
-
-        //String str = null;
-        try {
-            msgin = bf.readLine();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        System.out.println("Server: " + msgin);
     }
+
 
 }

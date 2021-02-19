@@ -1,9 +1,6 @@
 package com.company;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.sql.Connection;
@@ -13,11 +10,11 @@ import java.sql.Statement;
 
 public class Server {
 
-    static ServerSocket ss = null;
+    static ServerSocket ss;
     static int port = 5000;
-    static Socket s = null;
-    static InputStreamReader in = null;
-    static PrintWriter pr = null;
+    static Socket s;
+    static DataOutputStream out;
+    static DataInputStream in;
 
     static String nomDriver = "com.mysql.cj.jdbc.Driver";
     static String urlBD = "jdbc:mysql://localhost:3306/java";
@@ -26,9 +23,6 @@ public class Server {
 
     static Connection maConnexion = null;
     static Statement monStatement = null;
-
-    static int clientCount = 0;
-
 
     public static void main(String[] args) {
 
@@ -46,67 +40,68 @@ public class Server {
             e.printStackTrace();
         }
 
-        try {
-            assert s != null;
-            in = new InputStreamReader(s.getInputStream());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        while(true){
 
-        assert in != null;
-        BufferedReader bf = new BufferedReader(in);
-        String str = null;
-        try {
-            str = bf.readLine();
-            System.out.println("Le client veut insérer dans la bdd : " + str);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+            try {
+                assert s != null;
+                in = new DataInputStream(new BufferedInputStream(s.getInputStream()));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
-        try {
-            insertMessage(str);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+            try {
+                assert s != null;
+                out = new DataOutputStream(new BufferedOutputStream(s.getOutputStream()));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
-        try {
-            pr = new PrintWriter(s.getOutputStream());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+            String str = null;
+            try {
+                str = in.readUTF();
+                System.out.println("Le client veut insérer dans la bdd : " + str);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
-        assert pr != null;
-        pr.println("Insertion réussi de : " + str);
-        pr.flush();
-        try {
-            pr = new PrintWriter(s.getOutputStream());
-        } catch (IOException e) {
-            e.printStackTrace();
+            if(str != null) {
+                try {
+                    insertMessage(str);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                try {
+                    out.writeUTF("Insertion réussi de : " + str);
+                    out.flush();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
     public static void insertMessage(String message) {
 
-        if(maConnexion == null) {
-            try {
-                Class.forName(nomDriver);
-            } catch (ClassNotFoundException exception) {
-                exception.printStackTrace();
-                System.exit(-3);
-            }
 
-            try {
-                maConnexion = DriverManager.getConnection(urlBD, user, password);
-            } catch (SQLException throwables) {
-                throwables.printStackTrace();
-                System.exit(-4);
-            }
+        try {
+            Class.forName(nomDriver);
+        } catch (ClassNotFoundException exception) {
+            exception.printStackTrace();
+            System.exit(-3);
+        }
 
-            try {
-                monStatement = maConnexion.createStatement();
-            } catch (SQLException throwables) {
-                throwables.printStackTrace();
-            }
+        try {
+            maConnexion = DriverManager.getConnection(urlBD, user, password);
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            System.exit(-4);
+        }
+
+        try {
+            monStatement = maConnexion.createStatement();
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
         }
 
         String sql = "INSERT INTO `socket_message` (`message`) VALUES ('" + message + "')";
@@ -119,13 +114,11 @@ public class Server {
             System.exit(-61);
         }
 
-        if(s.isClosed()) {
-            try {
-                monStatement.close();
-                maConnexion.close();
-            } catch (SQLException throwables) {
-                throwables.printStackTrace();
-            }
+        try {
+            monStatement.close();
+            maConnexion.close();
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
         }
     }
 }
