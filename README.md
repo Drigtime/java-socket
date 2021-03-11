@@ -13,12 +13,12 @@
 
 ### Création de la base de donnée
 1. Ouvrir un Terminal à la racine du projet 
-2. éxécuter la commande `docker-compose up` pour initialiser un environnement contenant une base de donnée
+2. Exécuter la commande `docker-compose up` pour initialiser un environnement contenant une base de donnée
 
 ### Exécuter le programme
 > Si vous voulez utiliser le programme sans le compiler, sachez qu'il vous faudra la version 15 de Java minimum
 1. Ouvrir un Terminal à la racine du projet 
-2. éxécuter le serveur qui vas écouter sur le port **5000** les messages en provenance du client `java -jar out/artifacts/server_jar/iut-projet-final.jar`
+2. Exécuter le serveur qui vas écouter sur le port **5000** les messages en provenance du client `java -jar out/artifacts/server_jar/iut-projet-final.jar`
 3. Ouvrir le fichier étant à l'emplacement `out/artifacts/client_jar/iut-projet-final.jar` pour accéder à l'interface client
 4. Dans l'interface client vous pouvez envoyer des messages qui seront envoyés au serveur et ensuite sauvegardés en base de données localement
 
