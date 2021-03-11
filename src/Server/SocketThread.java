@@ -21,6 +21,7 @@ public class SocketThread extends Thread {
             inp = socket.getInputStream();
             brinp = new DataInputStream(new BufferedInputStream(inp));
             out = new DataOutputStream(socket.getOutputStream());
+            System.out.println("Nouvelle connexion de client");
         } catch (IOException e) {
             return;
         }
@@ -38,7 +39,7 @@ public class SocketThread extends Thread {
                     return;
                 } else {
                     db.insertMessage("socket_message", line);
-                    System.out.println(line);
+                    System.out.println("un client a enregistré '" + line + "' dans la base de données\n");
                     out.writeUTF(line + "\n\r");
                     out.flush();
                 }

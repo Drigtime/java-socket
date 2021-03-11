@@ -70,7 +70,7 @@ public class ClientGUI {
                         return;
                     }
                 }
-                display_msg.append("Server : " + msgin + "\n\n");
+                display_msg.append("Server : Le message '" + msgin + "' a bien été sauvegardé dans la base de données\n\n");
                 System.out.println("Server : " + msgin + "\n\n");
 
                 msgin = null;
@@ -88,6 +88,35 @@ public class ClientGUI {
         frame.setVisible(true);
         frame.pack();
 
+        waitForConnectedToServer(clientGUI);
+
+        while (true) {
+            try {
+                assert s != null;
+                out = new DataOutputStream(new BufferedOutputStream(s.getOutputStream()));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            try {
+                assert s != null;
+                in = new DataInputStream(new BufferedInputStream(s.getInputStream()));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            try {
+                msgin = in.readUTF();
+            } catch (IOException o) {
+                o.printStackTrace();
+                clientGUI.display_msg.append("Connexion au serveur perdu\n");
+                s = null;
+                waitForConnectedToServer(clientGUI);
+            }
+        }
+    }
+
+    private static void waitForConnectedToServer(ClientGUI clientGUI) {
         clientGUI.msg.setEnabled(false);
         clientGUI.btn_send.setEnabled(false);
         int counter = 0;
@@ -111,28 +140,6 @@ public class ClientGUI {
                     System.out.println("Erreur sleep");
                 }
                 counter++;
-            }
-        }
-
-        while (true) {
-            try {
-                assert s != null;
-                out = new DataOutputStream(new BufferedOutputStream(s.getOutputStream()));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            try {
-                assert s != null;
-                in = new DataInputStream(new BufferedInputStream(s.getInputStream()));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            try {
-                msgin = in.readUTF();
-            } catch (IOException o) {
-                o.printStackTrace();
             }
         }
     }
