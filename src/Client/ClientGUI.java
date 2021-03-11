@@ -16,6 +16,7 @@ public class ClientGUI {
     private JPanel MainPanel;
     private JTextArea display_msg;
 
+    static JFrame frame;
     static DataOutputStream out;
     static DataInputStream in;
     static Socket s;
@@ -26,11 +27,11 @@ public class ClientGUI {
         btn_send.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String msgout = "";
+                String msgout;
                 msgout = msg.getText().trim();
                 msg.setText("");
                 msg.requestFocus();
-                if (msgout != null && msgout != "" && !msgout.isEmpty() && !msgout.isBlank()) {
+                if (msgout != null && !msgout.equals("") && !msgout.isEmpty() && !msgout.isBlank()) {
                     try {
                         display_msg.append("Client : " + msgout + "\n");
                         out.writeUTF(msgout);
@@ -43,8 +44,12 @@ public class ClientGUI {
                     System.out.println("ERROR - message nul");
                     return;
                 }
+                if (msgout.equals("/exit")) {
+                    frame.dispose();
+                    System.exit(0);
+                }
                 int compteur = 0;
-                while (msgin == null && msgout != null && msgout != "" && !msgout.isEmpty() && !msgout.isBlank()) {
+                while (msgin == null && msgout != null && !msgout.equals("") && !msgout.isEmpty() && !msgout.isBlank()) {
                     System.out.println("ERROR - msgin null in the while");
                     display_msg.append("En attente d'une réponse du serveur..\n");
                     try {
@@ -66,30 +71,10 @@ public class ClientGUI {
                 return;
             }
         });
-
-        msg.setText("/exit");
-        msg.setForeground(Color.GRAY);
-        msg.addFocusListener(new FocusListener() {
-            @Override
-            public void focusGained(FocusEvent e) {
-                if (msg.getText().equals("/exit")) {
-                    msg.setText("");
-                    msg.setForeground(Color.BLACK);
-                }
-            }
-            @Override
-            public void focusLost(FocusEvent e) {
-                if (msg.getText().isEmpty()) {
-                    msg.setForeground(Color.GRAY);
-                    msg.setText("/exit");
-                }
-            }
-        });
-
     }
 
     public static void main(String[] args) throws IOException {
-        JFrame frame = new JFrame("Client");
+        frame = new JFrame("Client");
         frame.setMinimumSize(new Dimension(650, 400));
         ClientGUI clientGUI = new ClientGUI();
         frame.setContentPane(clientGUI.MainPanel);

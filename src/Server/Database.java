@@ -18,6 +18,13 @@ public class Database {
         connexion = DriverManager.getConnection(url, user, password);
     }
 
+    public void createTable(String table) throws SQLException {
+        Statement statement = connexion.createStatement();
+        String sql = "CREATE TABLE IF NOT EXISTS " + table + " ( `id` INT NOT NULL AUTO_INCREMENT , `message` VARCHAR(255) NOT NULL , PRIMARY KEY (`id`))";
+        int e = statement.executeUpdate(sql);
+        statement.close();
+    }
+
     public void insertMessage(String table, String message) throws SQLException {
         Statement statement = connexion.createStatement();
         String sql = "INSERT INTO `" + table + "` (`message`) VALUES ('" + message + "')";
