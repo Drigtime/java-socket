@@ -32,15 +32,21 @@ public class ClientGUI {
                 msg.setText("");
                 msg.requestFocus();
                 if (msgout != null && !msgout.equals("") && !msgout.isEmpty() && !msgout.isBlank()) {
-                    try {
-                        display_msg.append("Client : " + msgout + "\n");
-                        out.writeUTF(msgout);
-                        out.flush();
-                    } catch (Exception a) {
-                        System.out.println("ERROR - impossible d'envoyer le message dans le stream");
+                    if (msgout.length() >= 255) {
+                        display_msg.append("ERROR : Le message entré est trop grand, veuillez s'il vous plait reduire la taille de votre message\n");
+                        System.out.println("ERROR - message length exceeded max limit");
+                        return;
+                    } else {
+                        try {
+                            display_msg.append("Client : " + msgout + "\n");
+                            out.writeUTF(msgout);
+                            out.flush();
+                        } catch (Exception a) {
+                            System.out.println("ERROR - impossible d'envoyer le message dans le stream");
+                        }
                     }
                 } else {
-                    display_msg.append("ERROR : message nul - Veuillez rentrer quelque chose..");
+                    display_msg.append("ERROR : message nul - Veuillez rentrer quelque chose..\n");
                     System.out.println("ERROR - message nul");
                     return;
                 }
@@ -59,7 +65,7 @@ public class ClientGUI {
                     }
                     compteur++;
                     if (compteur > 360) {
-                        display_msg.append("ERROR : le serveur ne repond pas..");
+                        display_msg.append("ERROR : le serveur ne repond pas..\n");
                         System.out.println("ERROR : le serveur ne repond pas..");
                         return;
                     }
