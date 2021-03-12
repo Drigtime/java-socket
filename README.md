@@ -1,7 +1,7 @@
 # IUT Java Socket
 
 ## Informations
-* Il est possible de fermer le client en tapant la commande `/exit` dans le champs de texte
+* Il est possible de fermer le client en tapant la commande `/exit` dans le champ de texte
 * Il est possible d'exécuter plusieurs instances de client
 
 ## Prérequis
@@ -11,9 +11,9 @@
 
 ## Guide d'utilisation
 
-### Création de la base de donnée
+### Création de la base de données
 1. Ouvrir un Terminal à la racine du projet 
-2. Exécuter la commande `docker-compose up` pour initialiser un environnement contenant une base de donnée
+2. Exécuter la commande `docker-compose up` pour initialiser un environnement contenant une base de données
 
 ### Exécuter le programme
 > Si vous voulez utiliser le programme sans le compiler, sachez qu'il vous faudra la version 15 de Java minimum
@@ -28,4 +28,4 @@
 2. Dans la barre des menus, selectionnez `Construire > Construire un artefact`
 3. Suivre les étapes pour [exécuter le programme](#exécuter-le-programme)
 
-Quand vous avez fini vous pouvez supprimer des containers docker avec la commande `docker-compose down`
+Quand vous avez fini, vous pouvez supprimer des containers docker avec la commande `docker-compose down`
